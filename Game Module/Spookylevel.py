@@ -30,23 +30,20 @@ class Character:
         self.x = 0
         self.y = 750-128-125
         self.walkcount = 0
+        self.idlecount = 0
 
-        self.characterleft = {}
-        self.characterright = {}
-
-        for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Left_facing")):
-            if filename.endswith(".png"):
-                self.characterleft[filename.split(".")[0]] = pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Left_facing", filename))
-        
-        for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Right_facing")):
-            if filename.endswith(".png"):
-                self.characterright[filename.split(".")[0]] = pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Right_facing", filename))
+        self.characterleft = {
+            filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Left_facing", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Left_facing")) if filename.endswith(".png")
+        }
+        self.characterright = {
+            filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Right_facing", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Right_facing")) if filename.endswith(".png")
+        }
 
     def walk(self, direction, x, y):
         if direction is "left":
-            self.screen.blit(self.characterleft[f'Run__00{self.walkcount//2}'], (x,y))
+            self.screen.blit(self.characterleft[f'Run__00{self.walkcount//3}'], (x,y))
         elif direction is 'right':
-            self.screen.blit(self.characterright[f'Run__00{self.walkcount//2}'], (x,y))
+            self.screen.blit(self.characterright[f'Run__00{self.walkcount//3}'], (x,y))
 
     def idle(self, direction, x, y):
         if direction is "left":
@@ -105,7 +102,7 @@ class Graveyard:
         idle = True
 
         while self.play:
-            self.asset.clock.tick(40)
+            self.asset.clock.tick(30)
 
             self.screen.fill((0,0,0))
             self.screen.blit(self.background, (0,0))
@@ -121,7 +118,7 @@ class Graveyard:
                     break
                 if event.key == pygame.K_LEFT:
                     self.character.walkcount += 1
-                    if self.character.walkcount == 20:
+                    if self.character.walkcount == 30:
                         self.character.walkcount = 0
                     self.character.x -= self.vel
                     left = True
@@ -129,7 +126,7 @@ class Graveyard:
                     idle = False
                 if event.key == pygame.K_RIGHT:
                     self.character.walkcount += 1
-                    if self.character.walkcount == 20:
+                    if self.character.walkcount == 30:
                         self.character.walkcount = 0
                     self.character.x += self.vel
                     left = False
@@ -145,6 +142,10 @@ class Graveyard:
                     left = False
                     right = True
                     idle = True
+            if idle:
+                self.character.idlecount += 1
+                if self.character.idlecount == 30:
+                    self.character.idlecount = 0
             pygame.display.update()
         
 if __name__ == "__main__":
