@@ -2,6 +2,8 @@ import pygame
 import os
 from pygame import mixer
 
+from Graveyardtileset import TILES
+
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
 THEMEPATH = os.path.join(GAMEPATH, "Theme", "Graveyard")
@@ -57,7 +59,7 @@ class Enemy:
 class Layout():
     def __init__(self, screen):
         self.screen = screen
-        self.tilesets = {}
+        self.tilesets = TILES
         self.decorations = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Objects", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Objects"))
         }
@@ -67,15 +69,25 @@ class Layout():
 
     def loadfloors(self):
         global RELATIVE
-        for i in range(1500//128 + 1):
-            x = 128 * i + RELATIVE
-            if x > 0:
-                x = 128 * i - RELATIVE
-                self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
-            else:
-                RELATIVE = 0
-                x = 128 * i + RELATIVE
-                self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
+        # for i in range(1500//128 + 1):
+        #     x = 128 * i + RELATIVE
+        #     if x > 0:
+        #         x = 128 * i - RELATIVE
+        #         self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
+        #     else:
+        #         RELATIVE = 0
+        #         x = 128 * i + RELATIVE
+        #         self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
+        for i in self.tilesets.keys():
+            for j in self.tilesets[i].keys():
+                x, y = self.tilesets[i][j]['hitbox']
+                test = x + RELATIVE
+                if test > 0:
+                    x -= RELATIVE
+                else: 
+                    RELATIVE = 0
+                    x += RELATIVE
+                self.screen.blit(self.tilesets[i][j]['Resource'], (x, y))
 
 class Graveyard:
     def __init__(self):
@@ -90,26 +102,22 @@ class Graveyard:
         pygame.display.set_caption("Level 3: Graveyard") 
         self.background = self.asset.background
     
-    def charcontroller(self, r, l, i):
-        if i:
-            if r:
-                self.character.idle("right", self.character.x, self.character.y)
-            elif l:
-                self.character.idle("left", self.character.x, self.character.y)
-        else:
-            if r:
-                self.character.walk("right", self.character.x, self.character.y)
-            elif l:
-                self.character.walk("left", self.character.x, self.character.y)
+    def charcontroller(self, phase):
+        if phase is "idleright":
+            self.character.idle("right", self.character.x, self.character.y)
+        elif phase is "idleleft":
+            self.character.idle("left", self.character.x, self.character.y)
+        elif phase is "walkright":
+            self.character.walk("right", self.character.x, self.character.y)
+        elif phase is "walkleft":
+            self.character.walk("left", self.character.x, self.character.y)
 
     def game(self):
         global RELATIVE
         self.setup()
         self.play = True
         self.vel = 20
-        right = True
-        left = False
-        idle = True
+        phase = "idleleft"
 
         while self.play:
             self.asset.clock.tick(30)
@@ -117,7 +125,7 @@ class Graveyard:
             self.screen.fill((0,0,0))
             self.screen.blit(self.background, (0,0))
             
-            self.charcontroller(right, left, idle)
+            self.charcontroller(phase)
             self.layout.loadfloors()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -135,9 +143,7 @@ class Graveyard:
                         self.character.x -= self.vel
                     else:
                         RELATIVE -= self.vel
-                    left = True
-                    right = False
-                    idle = False
+                    phase = "walkleft"
                 if event.key == pygame.K_RIGHT:
                     self.character.walkcount += 1
                     if self.character.walkcount == 10:
@@ -146,23 +152,13 @@ class Graveyard:
                         self.character.x += self.vel
                     else:
                         RELATIVE += self.vel
-                    left = False
-                    right = True
-                    idle = False
+                    phase = "walkright"
             
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
-                    left = True
-                    right = False
-                    idle = True
+                    phase = "idleleft"
                 if event.key == pygame.K_RIGHT:
-                    left = False
-                    right = True
-                    idle = True
-            if idle:
-                self.character.idlecount += 1
-                if self.character.idlecount == 30:
-                    self.character.idlecount = 0
+                    phase = "idleright"
             pygame.display.update()
         
 if __name__ == "__main__":
