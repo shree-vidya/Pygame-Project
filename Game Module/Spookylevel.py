@@ -41,15 +41,15 @@ class Character:
 
     def walk(self, direction, x, y):
         if direction is "left":
-            self.screen.blit(self.characterleft[f'Run__00{self.walkcount//3}'], (x,y))
+            self.screen.blit(self.characterleft[f'Run__00{self.walkcount}'], (x,y))
         elif direction is 'right':
-            self.screen.blit(self.characterright[f'Run__00{self.walkcount//3}'], (x,y))
+            self.screen.blit(self.characterright[f'Run__00{self.walkcount}'], (x,y))
 
     def idle(self, direction, x, y):
         if direction is "left":
-            self.screen.blit(self.characterleft[f'Idle__00{self.walkcount//3}'], (x,y))
+            self.screen.blit(self.characterleft[f'Idle__00{self.walkcount}'], (x,y))
         elif direction is 'right':
-            self.screen.blit(self.characterright[f'Idle__00{self.walkcount//3}'], (x,y))
+            self.screen.blit(self.characterright[f'Idle__00{self.walkcount}'], (x,y))
 
 class Enemy:
     pass
@@ -57,6 +57,7 @@ class Enemy:
 class Layout():
     def __init__(self, screen):
         self.screen = screen
+        self.tilesets = {}
         self.decorations = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Objects", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Objects"))
         }
@@ -65,8 +66,16 @@ class Layout():
         }
 
     def loadfloors(self):
+        global RELATIVE
         for i in range(1500//128 + 1):
-            self.screen.blit(self.tiles['Tile (2)'], (128*i,750-128))
+            x = 128 * i + RELATIVE
+            if x > 0:
+                x = 128 * i - RELATIVE
+                self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
+            else:
+                RELATIVE = 0
+                x = 128 * i + RELATIVE
+                self.screen.blit(self.tiles['Tile (2)'], (x, 750-128))
 
 class Graveyard:
     def __init__(self):
@@ -94,9 +103,10 @@ class Graveyard:
                 self.character.walk("left", self.character.x, self.character.y)
 
     def game(self):
+        global RELATIVE
         self.setup()
         self.play = True
-        self.vel = 15
+        self.vel = 20
         right = True
         left = False
         idle = True
@@ -106,8 +116,9 @@ class Graveyard:
 
             self.screen.fill((0,0,0))
             self.screen.blit(self.background, (0,0))
-            self.layout.loadfloors()
+            
             self.charcontroller(right, left, idle)
+            self.layout.loadfloors()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.play = False
@@ -118,17 +129,23 @@ class Graveyard:
                     break
                 if event.key == pygame.K_LEFT:
                     self.character.walkcount += 1
-                    if self.character.walkcount == 30:
+                    if self.character.walkcount == 10:
                         self.character.walkcount = 0
-                    self.character.x -= self.vel
+                    if self.character.x > 0:
+                        self.character.x -= self.vel
+                    else:
+                        RELATIVE -= self.vel
                     left = True
                     right = False
                     idle = False
                 if event.key == pygame.K_RIGHT:
                     self.character.walkcount += 1
-                    if self.character.walkcount == 30:
+                    if self.character.walkcount == 10:
                         self.character.walkcount = 0
-                    self.character.x += self.vel
+                    if self.character.x < 750:
+                        self.character.x += self.vel
+                    else:
+                        RELATIVE += self.vel
                     left = False
                     right = True
                     idle = False
