@@ -125,36 +125,38 @@ class Desert:
                     self.character.walkcount += 1
                     if self.character.walkcount == 30:
                         self.character.walkcount = 0
-                    if self.character.x < (self.background.get_width()/2)-self.character.width:
-                        self.character.x -= self.vel
                     left = True
                     right = False
                     idle = False
-                    self.bgX += 15 
-                    self.bgX2 += 15
+                    if self.character.x < (self.background.get_width()/2)-self.character.width:
+                        self.character.x -= self.vel
+                    else:
+                        self.bgX += 15 
+                        self.bgX2 += 15
 
-                    if  self.bgX >=  self.background.get_width():  
-                         self.bgX =  self.background.get_width() * -1
-                    
-                    if  self.bgX2 >=  self.background.get_width():
-                         self.bgX2 =  self.background.get_width() * -1
+                        if  self.bgX >=  self.background.get_width():  
+                            self.bgX =  self.background.get_width() * -1
+                        
+                        if  self.bgX2 >=  self.background.get_width():
+                            self.bgX2 =  self.background.get_width() * -1
                 if event.key == pygame.K_RIGHT and self.character.x < self.background.get_width() - self.character.width - self.vel:
                     self.character.walkcount += 1
                     if self.character.walkcount == 30:
                         self.character.walkcount = 0
-                    if self.character.x < (self.background.get_width()/2)-self.character.width:
-                        self.character.x += self.vel
                     left = False
                     right = True
                     idle = False
-                    self.bgX -= 15 
-                    self.bgX2 -= 15
+                    if self.character.x < (self.background.get_width()/2)-self.character.width:
+                        self.character.x += self.vel
+                    else:
+                        self.bgX -= 15 
+                        self.bgX2 -= 15
 
-                    if  self.bgX <=  self.background.get_width() * -1:  
-                         self.bgX =  self.background.get_width()
-                    
-                    if  self.bgX2 <=  self.background.get_width() * -1:
-                         self.bgX2 =  self.background.get_width()
+                        if  self.bgX <=  self.background.get_width() * -1:  
+                            self.bgX =  self.background.get_width()
+                        
+                        if  self.bgX2 <=  self.background.get_width() * -1:
+                            self.bgX2 =  self.background.get_width()
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     left = True
