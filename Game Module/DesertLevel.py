@@ -68,30 +68,17 @@ class Character:
         
 
     def hit(self):
-        print("hit")
-        self.isJump=False
-        self.jumpcount=10
-        self.x = 0
-        self.y = 750-128-125
-        self.walkCount = 0
         font1 = pygame.font.SysFont('comicsans', 100)
         text = font1.render('-5', 1, (255,0,0))
-        self.screen.blit(text, (250 - (text.get_width()/2),200))
+        self.screen.blit(text, (600 - (text.get_width()/2),200))
         pygame.display.update()
-        i = 0
-        while i < 300:
-            pygame.time.delay(10)
-            i += 1
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    i = 301
-                    pygame.quit()
-
+        pygame.time.delay(500)
+        
     def gain(self):
         print("gain")
         font1 = pygame.font.SysFont('comicsans', 100)
-        text = font1.render('+1', 1, (255,0,0))
-        self.screen.blit(text, (250 - (text.get_width()/2),200))
+        text = font1.render('+10', 1, (0,153,0))
+        self.screen.blit(text, (600 - (text.get_width()/2),200))
         pygame.display.update()
         pygame.time.delay(100)
 
@@ -219,7 +206,7 @@ class Desert:
 
     def setup(self):
         self.background = self.asset.background
-        self.screen = pygame.display.set_mode((self.bgX2, 750))
+        self.screen = pygame.display.set_mode((self.bgX2, 750)) 
     
     def charcontroller(self, r, l, i):
         if i:
@@ -245,7 +232,7 @@ class Desert:
         self.obstacles = []
         self.coins = []
         score=0
-        pygame.time.set_timer(pygame.USEREVENT, random.randrange(3000, 5000))
+        pygame.time.set_timer(pygame.USEREVENT, random.randrange(3000, 6000))
         self.tiles = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
@@ -261,10 +248,15 @@ class Desert:
             for i in range(1500//128+1):
                 self.background.blit(self.tiles['2'], (128*i,750-128))
             
+            font = pygame.font.SysFont("comicsans", 50, True)
+            text = font.render("Score: " + str(score), 1, (0,0,0))
+            self.screen.blit(text, (1000, 10))
+
             for obstacle in self.obstacles:
                 obstacle.draw(self.screen)
                 if obstacle.collide(self.character.hitbox):
                     self.character.hit()
+                    self.obstacles.pop(self.obstacles.index(obstacle))
                     score -= 5
 
             for coin in self.coins:
@@ -272,7 +264,7 @@ class Desert:
                 if coin.collide(self.character.hitbox):
                     self.character.gain()
                     self.coins.pop(self.coins.index(coin))
-                    score += 1
+                    score += 10
 
             self.charcontroller(right, left, idle)
 
