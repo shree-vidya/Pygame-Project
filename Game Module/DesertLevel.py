@@ -41,6 +41,7 @@ class Character:
         self.idlecount = 0
         self.isJump=False
         self.jumpcount=10
+        self.hitbox = (self.x , self.y, self.width, self.height)
 
         self.characterleft = {
             filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Left_facing", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Left_facing")) if filename.endswith(".png")
@@ -61,6 +62,39 @@ class Character:
         elif direction is 'right':
             self.screen.blit(self.characterright[f'Idle__00{self.walkcount//3}'], (x,y))
 
+    def draw(self,win):
+        self.hitbox = (self.x , self.y, self.char.get_width(), self.char.get_height())  
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        
+
+    def hit(self):
+        print("hit")
+        self.isJump=False
+        self.jumpcount=10
+        self.x = 0
+        self.y = 750-128-125
+        self.walkCount = 0
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('-5', 1, (255,0,0))
+        self.screen.blit(text, (250 - (text.get_width()/2),200))
+        pygame.display.update()
+        i = 0
+        while i < 300:
+            pygame.time.delay(10)
+            i += 1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    i = 301
+                    pygame.quit()
+
+    def gain(self):
+        print("gain")
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('+1', 1, (255,0,0))
+        self.screen.blit(text, (250 - (text.get_width()/2),200))
+        pygame.display.update()
+        pygame.time.delay(100)
+
 class Layout():
     def __init__(self, screen):
         
@@ -71,10 +105,6 @@ class Layout():
         self.tiles = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
-        
-    # def loadfloors(self):
-    #     for i in range(1500//128+1):
-    #         self.asset.background.blit(self.tiles['2'], (128*i,750-128))
             
 
 class Cacti(object):  
@@ -84,11 +114,18 @@ class Cacti(object):
         self.width = width
         self.height = height
         self.img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Cactus (1).png"))
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())
 
     def draw(self,win):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
 
 class Crate(object):  
     img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Crate.png"))
@@ -97,11 +134,18 @@ class Crate(object):
         self.y = y
         self.width = width
         self.height = height
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height()) 
         
     def draw(self,win):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
 
 class Stones(object):  
     img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Stone.png"))
@@ -110,11 +154,18 @@ class Stones(object):
         self.y = y
         self.width = width
         self.height = height
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height()) 
         
     def draw(self,win):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
 
 class Skeletons(object):  
     img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Skeleton.png"))
@@ -123,11 +174,38 @@ class Skeletons(object):
         self.y = y
         self.width = width
         self.height = height
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())
         
     def draw(self,win):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
+
+class Coins(object):  
+    img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "002-money.png"))
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())
+        
+    def draw(self,win):
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
 
 class Desert:
     def __init__(self):
@@ -142,7 +220,6 @@ class Desert:
     def setup(self):
         self.background = self.asset.background
         self.screen = pygame.display.set_mode((self.bgX2, 750))
-        
     
     def charcontroller(self, r, l, i):
         if i:
@@ -165,16 +242,18 @@ class Desert:
         idle = True
         self.bgX=0
         self.bgX2=self.background.get_width()
-        obstacles = []
+        self.obstacles = []
+        self.coins = []
+        score=0
         pygame.time.set_timer(pygame.USEREVENT, random.randrange(3000, 5000))
         self.tiles = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
-        self.tileX=0
-        self.tileX2=self.tiles['2'].get_width()
+        
 
         while self.play:
             self.asset.clock.tick(30)
+            self.character.draw(self.screen)
 
             self.screen.blit(self.background, (self.bgX,0))
             self.screen.blit(self.background, (self.bgX2,0))
@@ -182,24 +261,37 @@ class Desert:
             for i in range(1500//128+1):
                 self.background.blit(self.tiles['2'], (128*i,750-128))
             
-            for obstacle in obstacles:
+            for obstacle in self.obstacles:
                 obstacle.draw(self.screen)
+                if obstacle.collide(self.character.hitbox):
+                    self.character.hit()
+                    score -= 5
+
+            for coin in self.coins:
+                coin.draw(self.screen)
+                if coin.collide(self.character.hitbox):
+                    self.character.gain()
+                    self.coins.pop(self.coins.index(coin))
+                    score += 1
 
             self.charcontroller(right, left, idle)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.play = False
                 if event.type == pygame.USEREVENT:
-                    r = random.randrange(0,4)
+                    r = random.randrange(0,5)
                     if r == 0:
-                        obstacles.append(Cacti(self.background.get_width(), 497+20, 64, 64))
+                        self.obstacles.append(Cacti(self.background.get_width(), 497+20, 64, 64))
                     elif r == 1:
-                        obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
+                        self.obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
                     elif r == 2:
-                        obstacles.append(Stones(self.background.get_width(), 497+55, 48, 310))
+                        self.obstacles.append(Stones(self.background.get_width(), 497+55, 48, 310))
                     elif r == 3:
-                        obstacles.append(Skeletons(self.background.get_width(), 497+75, 48, 310))
-            
+                        self.obstacles.append(Skeletons(self.background.get_width(), 497+75, 48, 310))
+                    elif r == 4:
+                        self.coins.append(Coins(self.background.get_width(), 497+65, 48, 310))
+   
             keys=pygame.key.get_pressed()
             if keys[pygame.K_q] or keys[pygame.K_ESCAPE]:
                 self.play = False
@@ -222,10 +314,15 @@ class Desert:
                     
                     if  self.bgX2 >=  self.background.get_width():
                         self.bgX2 =  self.background.get_width() * -1
-                    for obstacle in obstacles: 
+                    for obstacle in self.obstacles: 
                         obstacle.x += 15
                         if obstacle.x < obstacle.width * -1: 
-                            obstacles.pop(obstacles.index(obstacle))
+                            self.obstacles.pop(self.obstacles.index(obstacle))
+                    for coin in self.coins: 
+                        coin.x += 15
+                        if coin.x < coin.width * -1: 
+                            self.coins.pop(self.coins.index(coin))
+
             elif keys[pygame.K_RIGHT] and self.character.x < self.background.get_width() - self.character.width - self.vel:
                 self.character.walkcount += 1
                 if self.character.walkcount == 30:
@@ -244,10 +341,14 @@ class Desert:
                     
                     if  self.bgX2 <=  self.background.get_width() * -1:
                         self.bgX2 =  self.background.get_width()
-                    for obstacle in obstacles: 
+                    for obstacle in self.obstacles: 
                         obstacle.x -= 15
                         if obstacle.x < obstacle.width * -1: 
-                            obstacles.pop(obstacles.index(obstacle))
+                            self.obstacles.pop(self.obstacles.index(obstacle))
+                    for coin in self.coins: 
+                        coin.x -= 15
+                        if coin.x < coin.width * -1: 
+                            self.coins.pop(self.coins.index(coin))
                            
             else:
                 idle=True
