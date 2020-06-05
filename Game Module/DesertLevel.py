@@ -63,7 +63,7 @@ class Character:
 
 class Layout():
     def __init__(self, screen):
-        self.asset=Assets()
+        
         self.screen = screen
         self.decorations = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Objects", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Objects"))
@@ -72,9 +72,9 @@ class Layout():
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
         
-    def loadfloors(self):
-        for i in range(1500//128+1):
-            self.asset.background.blit(self.tiles['2'], (128*i,750-128))
+    # def loadfloors(self):
+    #     for i in range(1500//128+1):
+    #         self.asset.background.blit(self.tiles['2'], (128*i,750-128))
             
 
 class Cacti(object):  
@@ -178,7 +178,7 @@ class Desert:
 
             self.screen.blit(self.background, (self.bgX,0))
             self.screen.blit(self.background, (self.bgX2,0))
-            # self.layout.loadfloors()
+            
             for i in range(1500//128+1):
                 self.background.blit(self.tiles['2'], (128*i,750-128))
             
