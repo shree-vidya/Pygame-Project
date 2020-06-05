@@ -135,7 +135,7 @@ class Crate(object):
         return False
 
 class Stones(object):  
-    img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Stone.png"))
+    img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "StoneBlock.png"))
     def __init__(self,x,y,width,height):
         self.x = x
         self.y = y
@@ -278,7 +278,7 @@ class Desert:
                     elif r == 1:
                         self.obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
                     elif r == 2:
-                        self.obstacles.append(Stones(self.background.get_width(), 497+55, 48, 310))
+                        self.obstacles.append(Stones(self.background.get_width(), 497+25, 48, 310))
                     elif r == 3:
                         self.obstacles.append(Skeletons(self.background.get_width(), 497+75, 48, 310))
                     elif r == 4:
