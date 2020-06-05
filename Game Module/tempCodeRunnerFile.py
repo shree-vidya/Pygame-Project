@@ -1,4 +1,2 @@
-pygame.display.set_caption("Level 1: Desert") 
-        self.background = self.asset.background
-        self.bgX = 0
-        self.bgX2 = self.background.get_width()
+for i in range(self.bgX, (self.bgX2 +1)//128, 1):
+            #     self.screen.blit(self.tiles['2'], (i*self.tileX2,750-128))

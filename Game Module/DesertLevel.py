@@ -4,6 +4,7 @@ from pygame import mixer
 from pygame import time
 import random
 
+
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
 THEMEPATH = os.path.join(GAMEPATH, "Theme", "Desert")
@@ -62,6 +63,7 @@ class Character:
 
 class Layout():
     def __init__(self, screen):
+        self.asset=Assets()
         self.screen = screen
         self.decorations = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Objects", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Objects"))
@@ -69,10 +71,11 @@ class Layout():
         self.tiles = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
-
+        
     def loadfloors(self):
-        for i in range(1500//128 + 1):
-            self.screen.blit(self.tiles['2'], (128*i,750-128))
+        for i in range(1500//128+1):
+            self.asset.background.blit(self.tiles['2'], (128*i,750-128))
+            
 
 class Cacti(object):  
     def __init__(self,x,y,width,height):
@@ -139,6 +142,7 @@ class Desert:
     def setup(self):
         self.background = self.asset.background
         self.screen = pygame.display.set_mode((self.bgX2, 750))
+        
     
     def charcontroller(self, r, l, i):
         if i:
@@ -163,13 +167,21 @@ class Desert:
         self.bgX2=self.background.get_width()
         obstacles = []
         pygame.time.set_timer(pygame.USEREVENT, random.randrange(3000, 5000))
+        self.tiles = {
+            filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
+        }
+        self.tileX=0
+        self.tileX2=self.tiles['2'].get_width()
 
         while self.play:
             self.asset.clock.tick(30)
 
             self.screen.blit(self.background, (self.bgX,0))
             self.screen.blit(self.background, (self.bgX2,0))
-            self.layout.loadfloors()
+            # self.layout.loadfloors()
+            for i in range(1500//128+1):
+                self.background.blit(self.tiles['2'], (128*i,750-128))
+            
             for obstacle in obstacles:
                 obstacle.draw(self.screen)
 
@@ -188,7 +200,6 @@ class Desert:
                     elif r == 3:
                         obstacles.append(Skeletons(self.background.get_width(), 497+75, 48, 310))
             
-            # if event.type == pygame.KEYDOWN:
             keys=pygame.key.get_pressed()
             if keys[pygame.K_q] or keys[pygame.K_ESCAPE]:
                 self.play = False
@@ -237,6 +248,7 @@ class Desert:
                         obstacle.x -= 15
                         if obstacle.x < obstacle.width * -1: 
                             obstacles.pop(obstacles.index(obstacle))
+                           
             else:
                 idle=True
                 self.character.walkCount = 0
@@ -254,15 +266,6 @@ class Desert:
                 else:
                     self.character.isJump=False
                     self.character.jumpcount=10
-        # if event.type == pygame.KEYUP:
-        #     if keys[pygame.K_LEFT]:
-        #         left = True
-        #         right = False
-        #         idle = True
-        #     if keys[pygame.K_RIGHT]:
-        #         left = False
-        #         right = True
-        #         idle = True
             if idle:
                 self.character.idlecount += 1
                 if self.character.idlecount == 30:
