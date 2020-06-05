@@ -2,7 +2,7 @@ import pygame
 import os
 from pygame import mixer
 
-from Graveyardtileset import TILES, DECORATIONS
+from Graveyardtileset import TILES, DECORATIONS, REDDOT
 
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
@@ -92,12 +92,16 @@ class Graveyard:
         elif phase is "walkleft":
             self.character.ninja("left", "Run", self.character.x, self.character.y)
 
+
     def game(self):
         global RELATIVE
         self.setup()
         self.play = True
         self.vel = 20
         phase = "idleright"
+        # pygame.mouse.set_visible(False)
+        cursor = pygame.cursors.compile(REDDOT, black='X', white='.', xor='o')
+        pygame.mouse.set_cursor((24, 24), (12, 12), *cursor)
 
         while self.play:
             self.asset.clock.tick(30)
@@ -107,9 +111,16 @@ class Graveyard:
             
             self.charcontroller(phase)
             self.layout.loadfloors()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.play = False
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1: # Left Click is 1
+                    self.play = False
+                if event.button == 3: # Right Click is 3
+                    mx, my = pygame.mouse.get_pos()
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
@@ -128,11 +139,15 @@ class Graveyard:
                     self.character.walkcount += 1
                     if self.character.walkcount == 10:
                         self.character.walkcount = 0
-                    if self.character.x < 750:
+                    if self.character.x < 750-128:
                         self.character.x += self.vel
                     else:
                         RELATIVE += self.vel
                     phase = "walkright"
+                
+                if event.key == pygame.K_UP:
+                    pass
+ 
             
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:

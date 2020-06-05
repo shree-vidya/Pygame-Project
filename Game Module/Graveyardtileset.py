@@ -94,3 +94,31 @@ TILES = {
         }
 
 DECORATIONS = {}
+
+
+REDDOT = (
+  "           X            ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           ..           ",
+  "                        ",
+  "           ..           ",
+  " XXXXXXX. .XX. .XXXXXXXX",
+  "XXXXXXXX. .XX. .XXXXXXX ",
+  "           ..           ",
+  "                        ",
+  "           ..           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "           XX           ",
+  "            X           "
+)
