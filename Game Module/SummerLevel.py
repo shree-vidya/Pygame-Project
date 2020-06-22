@@ -3,6 +3,7 @@ import os
 from pygame import mixer
 from pygame import time
 import random
+from PIL import Image
 
 
 GAMEPATH = os.getcwd()
@@ -312,7 +313,7 @@ class Summer:
                     elif r == 4:
                         self.coins.append(Coins(self.background.get_width(), 497+65, 48, 310))
                     else:
-                        self.obstacles.append(Tree(self.background.get_width(), 497-175, 270, 310))
+                        self.obstacles.append(Tree(self.background.get_width(), 497-175, 48, 310))
                         
 
                     
@@ -332,8 +333,8 @@ class Summer:
                 if self.character.x < (self.background.get_width()/2)-self.character.width:
                     self.character.x -= self.vel
                 else:
-                    self.bgX += 20 
-                    self.bgX2 += 20
+                    self.bgX += 25
+                    self.bgX2 += 25
 
                     if  self.bgX >=  self.background.get_width():  
                         self.bgX =  self.background.get_width() * -1
@@ -341,11 +342,11 @@ class Summer:
                     if  self.bgX2 >=  self.background.get_width():
                         self.bgX2 =  self.background.get_width() * -1
                     for obstacle in self.obstacles: 
-                        obstacle.x += 20
+                        obstacle.x += 25
                         if obstacle.x < obstacle.width * -1: 
                             self.obstacles.pop(self.obstacles.index(obstacle))
                     for coin in self.coins: 
-                        coin.x += 20
+                        coin.x += 25
                         if coin.x < coin.width * -1: 
                             self.coins.pop(self.coins.index(coin))
 
@@ -359,8 +360,8 @@ class Summer:
                 if self.character.x < (self.background.get_width()/2)-self.character.width:
                     self.character.x += self.vel
                 else:
-                    self.bgX -= 20
-                    self.bgX2 -= 20
+                    self.bgX -= 25
+                    self.bgX2 -= 25
 
                     if  self.bgX <=  self.background.get_width() * -1:  
                         self.bgX =  self.background.get_width()
@@ -368,11 +369,11 @@ class Summer:
                     if  self.bgX2 <=  self.background.get_width() * -1:
                         self.bgX2 =  self.background.get_width()
                     for obstacle in self.obstacles: 
-                        obstacle.x -= 20
+                        obstacle.x -= 25
                         if obstacle.x < obstacle.width * -1: 
                             self.obstacles.pop(self.obstacles.index(obstacle))
                     for coin in self.coins: 
-                        coin.x -= 20
+                        coin.x -= 25
                         if coin.x < coin.width * -1: 
                             self.coins.pop(self.coins.index(coin))
                            
