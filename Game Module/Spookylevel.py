@@ -7,7 +7,10 @@ from Graveyardtileset import TILES, DECORATIONS, REDDOT
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
 THEMEPATH = os.path.join(GAMEPATH, "Theme", "Graveyard")
+
 RELATIVE = 0
+
+VELOCITY = 20
 
 class Assets():
     def __init__(self):
@@ -33,6 +36,8 @@ class Character:
         self.y = 750-128-125
         self.walkcount = 0
         self.idlecount = 0
+        self.xvel = 0
+        self.yvel = 0
 
         self.characterleft = {
             filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Left_facing", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Left_facing")) if filename.endswith(".png")
@@ -55,6 +60,11 @@ class Layout():
         self.screen = screen
         self.tilesets = TILES
         self.decorations = DECORATIONS
+        self.tilecoordinates = [] # x1, y1, x2, y2
+        for i in self.tilesets.keys():
+            for j in self.tilesets[i].keys():
+                x, y = self.tilesets[i][j]['hitbox']
+                self.tilecoordinates.append((x, y, x+128, y+128))
 
     def loadfloors(self):
         global RELATIVE
@@ -81,6 +91,22 @@ class Graveyard:
         self.screen = pygame.display.set_mode((1500, 750))
         pygame.display.set_caption("Level 3: Graveyard") 
         self.background = self.asset.background
+
+    def hitboxcheck(self, phase):
+        # Floor check
+        hitbox = self.layout.tilecoordinates
+        x = self.character.x
+        y = self.character.y
+        for x1, y1, x2, y2 in hitbox:
+            if x > x1 and x < x2:
+                if y >= y1 and y <= y2:
+                    # Fill here
+                    pass
+
+
+    def movement(self):
+        # Y did I write this? 
+        pass
     
     def charcontroller(self, phase):
         if phase is "idleright":
@@ -91,13 +117,17 @@ class Graveyard:
             self.character.ninja("right", "Run", self.character.x, self.character.y)
         elif phase is "walkleft":
             self.character.ninja("left", "Run", self.character.x, self.character.y)
+        elif phase is "jumpright":
+            self.character.ninja("right", "Jump", self.character.x, self.character.y)
+        elif phase is "jumpleft":
+            self.character.ninja("left", "Jump", self.character.x, self.character.y)
 
 
     def game(self):
         global RELATIVE
         self.setup()
         self.play = True
-        self.vel = 20
+        jumping = False
         phase = "idleright"
         # pygame.mouse.set_visible(False)
         cursor = pygame.cursors.compile(REDDOT, black='X', white='.', xor='o')
@@ -131,22 +161,27 @@ class Graveyard:
                     if self.character.walkcount == 10:
                         self.character.walkcount = 0
                     if self.character.x > 0:
-                        self.character.x -= self.vel
+                        self.character.x -= VELOCITY 
                     else:
-                        RELATIVE -= self.vel
+                        RELATIVE -= VELOCITY
                     phase = "walkleft"
                 if event.key == pygame.K_RIGHT:
                     self.character.walkcount += 1
                     if self.character.walkcount == 10:
                         self.character.walkcount = 0
                     if self.character.x < 750-128:
-                        self.character.x += self.vel
+                        self.character.x += VELOCITY
                     else:
-                        RELATIVE += self.vel
+                        RELATIVE += VELOCITY
                     phase = "walkright"
                 
                 if event.key == pygame.K_UP:
-                    pass
+                    if not jumping:
+                        jumping = True
+                        if "left" in phase:
+                            print("leftjump")
+                        elif "right" in phase:
+                            print("Righijump")
  
             
             if event.type == pygame.KEYUP:
@@ -154,6 +189,8 @@ class Graveyard:
                     phase = "idleleft"
                 if event.key == pygame.K_RIGHT:
                     phase = "idleright"
+                if event.key == pygame.K_UP:
+                    jumping = False
             pygame.display.update()
         
 if __name__ == "__main__":

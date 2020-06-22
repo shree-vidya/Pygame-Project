@@ -24,7 +24,7 @@ TILES = {
             "1":{
                 "1":{ 
                     "Resource": pygame.image.load(os.path.join(PATH, "Tile (11).png")),
-                    "hitbox" : (0,750 - 128) #x, y
+                    "hitbox" : (0,750 - 128) #x1, y1 
                 },
                 "2":{ 
                     "Resource": pygame.image.load(os.path.join(PATH, "Tile (2).png")),
