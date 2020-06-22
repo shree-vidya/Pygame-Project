@@ -96,7 +96,7 @@ TILES = {
 DECORATIONS = {}
 
 
-REDDOT = (
+CROSSHAIR = (
   "           X            ",
   "           XX           ",
   "           XX           ",

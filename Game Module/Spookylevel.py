@@ -2,7 +2,7 @@ import pygame
 import os
 from pygame import mixer
 
-from Graveyardtileset import TILES, DECORATIONS, REDDOT
+from Graveyardtileset import TILES, DECORATIONS, CROSSHAIR
 
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
@@ -130,7 +130,7 @@ class Graveyard:
         jumping = False
         phase = "idleright"
         # pygame.mouse.set_visible(False)
-        cursor = pygame.cursors.compile(REDDOT, black='X', white='.', xor='o')
+        cursor = pygame.cursors.compile(CROSSHAIR, black='X', white='.', xor='o')
         pygame.mouse.set_cursor((24, 24), (12, 12), *cursor)
 
         while self.play:
