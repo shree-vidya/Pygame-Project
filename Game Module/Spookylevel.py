@@ -95,8 +95,8 @@ class Graveyard:
     def hitboxcheck(self, phase):
         # Floor check
         hitbox = self.layout.tilecoordinates
-        x = self.character.x
-        y = self.character.y
+        x = self.character.x + 70
+        y = self.character.y + 70
         for x1, y1, x2, y2 in hitbox:
             if x > x1 and x < x2:
                 if y >= y1 and y <= y2:
@@ -123,11 +123,25 @@ class Graveyard:
             self.character.ninja("left", "Jump", self.character.x, self.character.y)
 
 
+
+    def getangle(self):
+        mx, my = pygame.mouse.get_pos()
+        # Use angle between 2 lines to calculate angle
+        angle = 80
+        return angle
+
+    def draw(self):
+        pass
+
+
+
+
     def game(self):
         global RELATIVE
         self.setup()
         self.play = True
         jumping = False
+        throwing = False
         phase = "idleright"
         # pygame.mouse.set_visible(False)
         cursor = pygame.cursors.compile(CROSSHAIR, black='X', white='.', xor='o')
@@ -147,8 +161,10 @@ class Graveyard:
                     self.play = False
             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1: # Left Click is 1
-                    self.play = False
+                if event.button == 1 and not throwing: # Left Click is 1
+                    self.getangle()
+                    self.draw()
+                    throwing = True
                 if event.button == 3: # Right Click is 3
                     mx, my = pygame.mouse.get_pos()
             
