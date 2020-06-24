@@ -4,11 +4,14 @@ from pygame import mixer
 from pygame import time
 import random
 from PIL import Image
+from Graveyardtileset import CROSSHAIR
+from PIL import Image
 
 
 GAMEPATH = os.getcwd()
 FILEPATH = os.path.join(GAMEPATH, "Game Module")
 THEMEPATH = os.path.join(GAMEPATH, "Theme", "Summer")
+ENEMYPATH = os.path.join(GAMEPATH, "Enemy","Left_facing", "1" )
 RELATIVE = 0
 
 class Assets():
@@ -40,6 +43,7 @@ class Character:
         self.y = 750-128-125
         self.walkcount = 0
         self.idlecount = 0
+        self.isidle = True
         self.isJump=False
         self.jumpcount=10
         self.hitbox = (self.x , self.y, self.width, self.height)
@@ -52,20 +56,26 @@ class Character:
         }
 
     def walk(self, direction, x, y):
+        self.isidle = False
+        if self.walkcount + 1 >= 18:
+            self.walkcount = 0
         if direction is "left":
-            self.screen.blit(self.characterleft[f'Run__00{self.walkcount//3}'], (x,y))
+                self.screen.blit(self.characterleft[f'Run__00{self.walkcount//3}'], (x,y))
         elif direction is 'right':
-            self.screen.blit(self.characterright[f'Run__00{self.walkcount//3}'], (x,y))
+                self.screen.blit(self.characterright[f'Run__00{self.walkcount//3}'], (x,y))
 
     def idle(self, direction, x, y):
+        self.isidle = True
+        if self.walkcount + 1 >= 18:
+            self.walkcount = 0
         if direction is "left":
-            self.screen.blit(self.characterleft[f'Idle__00{self.walkcount//3}'], (x,y))
+                self.screen.blit(self.characterleft[f'Idle__00{self.walkcount//3}'], (x,y))
         elif direction is 'right':
-            self.screen.blit(self.characterright[f'Idle__00{self.walkcount//3}'], (x,y))
+                self.screen.blit(self.characterright[f'Idle__00{self.walkcount//3}'], (x,y))
 
     def draw(self,win):
         self.hitbox = (self.x , self.y, self.char.get_width(), self.char.get_height())  
-        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         
 
     def hit(self):
@@ -83,6 +93,74 @@ class Character:
         pygame.display.update()
         pygame.time.delay(100)
 
+class Enemy():
+    img = pygame.image.load(os.path.join(ENEMYPATH, "RUN_0.png"))
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.walkCount = 0
+        self.hitbox = [self.x , self.y, self.img.get_width(), self.img.get_height()]
+        self.isenemy = True
+        self.enemyleft = {
+            filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Enemy", "Left_facing", "1", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Enemy", "Left_facing", "1")) if filename.endswith(".png")
+        }
+        self.enemyright = {
+            filename.split(".")[0] : pygame.image.load(os.path.join(GAMEPATH, "Enemy", "Right_facing", "1", filename)) for filename in os.listdir(os.path.join(GAMEPATH, "Enemy", "Right_facing", "1")) if filename.endswith(".png")
+        }
+    
+    def draw(self,win,rect,idle):
+        # self.move()
+        if self.walkCount + 1 >= 21:
+            self.walkCount = 0
+        
+        if rect[0] > self.x and idle == True:
+            self.x += 5
+        if rect[0] < self.x and idle == True:
+            self.x -=5
+          
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # win.blit(self.img, (self.x,self.y))
+        if rect[0] > self.x:
+            self.hitbox = (self.x- 28, self.y +25, self.img.get_width() -25, self.img.get_height()-25)
+            win.blit(self.enemyright[f'RUN_{self.walkCount//3}'],(self.x,self.y))
+            self.walkCount += 1
+            # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        else: 
+            self.hitbox = (self.x +30, self.y+25, self.img.get_width()-25, self.img.get_height()-25)
+            win.blit(self.enemyleft[f'RUN_{self.walkCount//3}'],(self.x,self.y))
+            self.walkCount += 1
+            # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+
+        
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
+
+class Weapon(object): 
+    def __init__(self,y,width,height,char_x):
+        self.x = char_x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.img = pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Weapon", "Kunai_0.png"))
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())
+
+    def draw(self,win):
+        self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        win.blit(self.img, (self.x,self.y))
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
+    
 class Layout():
     def __init__(self, screen):
         
@@ -249,13 +327,19 @@ class Summer:
         self.bgX2=self.background.get_width()
         self.obstacles = []
         self.coins = []
+        self.enemies = []
+        self.shoot = []
+        weapon_there = False
         score=0
-        obstalce_there = False
+        obstacle_there = False
         pygame.time.set_timer(pygame.USEREVENT, random.randrange(3000, 6000))
         self.tiles = {
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
-    
+
+        cursor = pygame.cursors.compile(CROSSHAIR, black='X', white='.', xor='o')
+        pygame.mouse.set_cursor((24, 24), (12, 12), *cursor)
+
         
 
         while self.play:
@@ -277,31 +361,48 @@ class Summer:
             self.screen.blit(text, (10, 10))
 
             for obstacle in self.obstacles:
-                obstalce_there = True
+                obstacle_there = True
                 obstacle.draw(self.screen)
                 if obstacle.collide(self.character.hitbox):
                     self.character.hit()
                     self.obstacles.pop(self.obstacles.index(obstacle))
                     score -= 5
-                obstalce_there = False
+                obstacle_there = False
+
+            for enemy in self.enemies:
+                obstacle_there = True
+                enemy.draw(self.screen,self.character.hitbox,self.character.isidle)
+                if enemy.collide(self.character.hitbox):
+                    self.character.hit()
+                    self.enemies.pop(self.enemies.index(enemy))
+                    score -= 25
+                    obstacle_there = False
+                
+            for weapon in self.shoot:
+                weapon_there = True
+                print("hahaha")
+                weapon.draw(self.screen)
+                weapon.x +=10
+                weapon_there = False
+
 
 
             for coin in self.coins:
-                obstalce_there = True
+                obstacle_there = True
                 coin.draw(self.screen)
                 if coin.collide(self.character.hitbox):
                     self.character.gain()
                     self.coins.pop(self.coins.index(coin))
                     score += 10
-                obstalce_there = False
+                obstacle_there = False
 
             self.charcontroller(right, left, idle)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.play = False
-                if event.type == pygame.USEREVENT and obstalce_there == False:
-                    r = random.randrange(0,7)
+                if event.type == pygame.USEREVENT and obstacle_there == False:
+                    r = random.randrange(0,15)
                     if r == 0:
                         self.obstacles.append(Bush(self.background.get_width(), 497+80, 48, 310))
                     elif r == 1:
@@ -312,17 +413,22 @@ class Summer:
                         self.obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
                     elif r == 4:
                         self.coins.append(Coins(self.background.get_width(), 497+65, 48, 310))
+                    elif r == 5:
+                        self.obstacles.append(Tree(self.background.get_width(), 497-175, 150, 310))
                     else:
-                        self.obstacles.append(Tree(self.background.get_width(), 497-175, 48, 310))
-                        
-
-                    
+                        self.enemies.append(Enemy(self.background.get_width(), 505, 64, 64))       
    
    
             keys=pygame.key.get_pressed()
-            if keys[pygame.K_q] or keys[pygame.K_ESCAPE]:
+            if keys[pygame.K_q or pygame.K_ESCAPE]:
                 self.play = False
                 break
+
+            if keys[pygame.K_SPACE] and weapon_there == False:
+                print("in")
+                self.shoot.append(Weapon(self.character.y + 40, 16, 16, self.character.x))
+
+
             if keys[pygame.K_LEFT] and self.character.x > self.vel:
                 self.character.walkcount += 1
                 if self.character.walkcount == 30:
@@ -345,6 +451,13 @@ class Summer:
                         obstacle.x += 25
                         if obstacle.x < obstacle.width * -1: 
                             self.obstacles.pop(self.obstacles.index(obstacle))
+                    for enemy in self.enemies: 
+                        enemy.x += 27
+                        # enemy.end -= 7
+                        # enemy.hitbox[0] += 7
+                        if enemy.x < enemy.width * -1: 
+                            self.enemies.pop(self.enemies.index(enemy))
+                            obstacle_there = False
                     for coin in self.coins: 
                         coin.x += 25
                         if coin.x < coin.width * -1: 
@@ -376,6 +489,15 @@ class Summer:
                         coin.x -= 25
                         if coin.x < coin.width * -1: 
                             self.coins.pop(self.coins.index(coin))
+                    for enemy in self.enemies: 
+                        enemy.x -= 27
+                        if enemy.x < self.character.x - 120:
+                            enemy.x +=27
+                        # enemy.end -= 7
+                        # enemy.hitbox[0] -= 7
+                        if enemy.x < enemy.width * -1: 
+                            self.enemies.pop(self.enemies.index(enemy))
+                            obstacle_there = False
                            
             else:
                 idle=True
