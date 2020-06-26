@@ -6,6 +6,7 @@ import random
 from PIL import Image
 from Graveyardtileset import CROSSHAIR
 from PIL import Image
+import math
 
 
 GAMEPATH = os.getcwd()
@@ -86,7 +87,6 @@ class Character:
         pygame.time.delay(500)
         
     def gain(self):
-        print("gain")
         font1 = pygame.font.SysFont('comicsans', 100)
         text = font1.render('+10', 1, (0,153,0))
         self.screen.blit(text, (600 - (text.get_width()/2),200))
@@ -145,21 +145,73 @@ class Weapon(object):
     def __init__(self,y,width,height,char_x):
         self.x = char_x
         self.y = y
+        self.i = 0
+        self.angle = 0
         self.width = width
         self.height = height
-        self.img = pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Weapon", "Kunai_0.png"))
+        self.weapons = []
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Weapon", "Kunai_0.png")),(64,32))
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())
-
-    def draw(self,win):
+        # for filename in os.listdir(os.path.join(GAMEPATH, "Main_character", "Weapon")):
+        #      if filename.endswith(".png"):
+        #          self.weapons.append(pygame.transform.scale(pygame.image.load(os.path.join(GAMEPATH, "Main_character", "Weapon", filename)),(64,32)))
+        
+        
+    def draw(self,win,rect):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
         # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # if self.i > 71:
+        #     self.i=0
+        # win.blit(self.weapons[self.i], (self.x,self.y))
+        # self.i += 1
         win.blit(self.img, (self.x,self.y))
+        
+    def get_angle(self,clickx,clicky,rect):
+        y = rect[1]+60
+        x = rect[0]+40
+        try:
+            angle = math.atan((y - clicky) / (x - clickx))
+        except:
+            angle = math.pi / 2
+
+        if clicky < y and clickx > x:
+            angle = abs(angle)
+        elif clicky < y and clickx < x:
+            angle = math.pi - angle 
+        elif clicky > y and clickx < x:
+            angle = math.pi + abs(angle)
+        elif clicky > y and clickx > x:
+            angle = (math.pi * 2) - angle
+        print(angle)
+        return angle
+
+    def projectile(self,startx, starty,angle, power, time):
+        
+        velx = math.cos(angle) * power
+        vely = math.sin(angle) * power
+
+        disx = velx * time
+        disy = (vely * time) + ((-9.8 * (time)** 2)/2)
+
+        newx = round(disx +startx)
+        newy = round(starty - disy)
+        
+        print((newx, newy))
+        return (newx, newy)
 
     def collide(self, rect):
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] + rect[3] > self.hitbox[1]:
                 return True
         return False
+
+    def gain(self,screen):
+        self.screen = screen
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('+25', 1, (0,153,0))
+        self.screen.blit(text, (600 - (text.get_width()/2),200))
+        pygame.display.update()
+        pygame.time.delay(20)
     
 class Layout():
     def __init__(self, screen):
@@ -329,6 +381,7 @@ class Summer:
         self.coins = []
         self.enemies = []
         self.shoot = []
+        time = 0
         weapon_there = False
         score=0
         obstacle_there = False
@@ -378,14 +431,48 @@ class Summer:
                     score -= 25
                     obstacle_there = False
                 
+
+            
+
             for weapon in self.shoot:
                 weapon_there = True
-                print("hahaha")
-                weapon.draw(self.screen)
-                weapon.x +=10
-                weapon_there = False
-
-
+                if weapon.y > self.character.y + 100:
+                    self.shoot.pop(self.shoot.index(weapon))
+                    weapon_there = False
+                weapon.draw(self.screen,self.character.hitbox)
+                time += 0.5
+                clickx ,clicky = pygame.mouse.get_pos()
+                line = [(weapon.x, weapon.y),(clickx,clicky)]
+                power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][0])**2 )/2
+                print("//////")
+                print("time")
+                print(time)
+                print("//////")
+                
+                print("//////")
+                print("power")
+                print(power)
+                print("//////")
+                angle = weapon.get_angle(clickx,clicky,self.character.hitbox)
+                
+                pos = weapon.projectile(weapon_x,weapon_y,angle,power,time)
+                if(pos[0]<0 or pos[1]<0):
+                    self.shoot.pop(self.shoot.index(weapon))
+                    weapon_there = False
+                weapon.x = pos[0]
+                weapon.y = pos[1]
+                # weapon.x += 50
+                # weapon.y -= 50
+                 # weapon.y = ((self.character.x + 40) * math.tan(weapon.angle))-((9.8 * ((self.character.x + 40) ** 2))/(2 * (30 ** 2) * (math.cos(weapon.angle)**2)))
+                for enemy in self.enemies:
+                    if weapon.collide(enemy.hitbox):
+                        self.shoot.pop(self.shoot.index(weapon))
+                        weapon_there = False
+                        weapon.gain(self.asset.getscreen())
+                        self.enemies.pop(self.enemies.index(enemy))
+                        obstacle_there = False
+                        score += 25
+                
 
             for coin in self.coins:
                 obstacle_there = True
@@ -402,7 +489,7 @@ class Summer:
                 if event.type == pygame.QUIT:
                     self.play = False
                 if event.type == pygame.USEREVENT and obstacle_there == False:
-                    r = random.randrange(0,15)
+                    r = random.randrange(0,25)
                     if r == 0:
                         self.obstacles.append(Bush(self.background.get_width(), 497+80, 48, 310))
                     elif r == 1:
@@ -424,9 +511,15 @@ class Summer:
                 self.play = False
                 break
 
-            if keys[pygame.K_SPACE] and weapon_there == False:
-                print("in")
-                self.shoot.append(Weapon(self.character.y + 40, 16, 16, self.character.x))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and  weapon_there == False and len(self.enemies) > 0:
+                    self.shoot.append(Weapon(self.character.y + 60, 16, 16, self.character.x + 40))
+                    
+                    weapon_x = self.character.x + 40
+                    weapon_y = self.character.y + 60
+                    time = 0
+                
+                    
 
 
             if keys[pygame.K_LEFT] and self.character.x > self.vel:
