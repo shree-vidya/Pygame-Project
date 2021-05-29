@@ -4,15 +4,19 @@ from pygame import mixer
 from pygame import time
 import random
 from PIL import Image
-from Graveyardtileset import CROSSHAIR
+# from Graveyardtileset import CROSSHAIR
 from PIL import Image
 import math
 
 
-GAMEPATH = os.getcwd()
-FILEPATH = os.path.join(GAMEPATH, "Game Module")
-THEMEPATH = os.path.join(GAMEPATH, "Theme", "Summer")
-ENEMYPATH = os.path.join(GAMEPATH, "Enemy","Left_facing", "1" )
+
+path = os.getcwd()
+path1 = os.path.abspath(os.path.join(path, os.pardir))
+
+GAMEPATH = path1
+FILEPATH = os.path.join(path1, "Game Module")
+THEMEPATH = os.path.join(path1, "Theme", "Summer")
+ENEMYPATH = os.path.join(path1, "Enemy","Left_facing", "1" )
 RELATIVE = 0
 
 class Assets():
@@ -220,10 +224,11 @@ class Layout():
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Objects", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Objects"))
         }
         self.tiles = {
-            filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
+             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
 
 class Tree(object):  
+    
     img = pygame.image.load(os.path.join(THEMEPATH, "Objects", "Tree_3.png"))
     def __init__(self,x,y,width,height):
         self.x = x
@@ -389,8 +394,8 @@ class Summer:
             filename.split(".")[0] : pygame.image.load(os.path.join(THEMEPATH, "Tiles", filename)) for filename in os.listdir(os.path.join(THEMEPATH, "Tiles"))
         }
 
-        cursor = pygame.cursors.compile(CROSSHAIR, black='X', white='.', xor='o')
-        pygame.mouse.set_cursor((24, 24), (12, 12), *cursor)
+        # cursor = pygame.cursors.compile(CROSSHAIR, black='X', white='.', xor='o')
+        # pygame.mouse.set_cursor((24, 24), (12, 12), *cursor)
 
         
 
