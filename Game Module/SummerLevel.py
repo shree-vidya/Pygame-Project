@@ -89,6 +89,13 @@ class Character:
         self.screen.blit(text, (600 - (text.get_width()/2),200))
         pygame.display.update()
         pygame.time.delay(500)
+
+    def hit_enemy(self):
+        font1 = pygame.font.SysFont('comicsans', 100)
+        text = font1.render('-25', 1, (255,0,0))
+        self.screen.blit(text, (600 - (text.get_width()/2),200))
+        pygame.display.update()
+        pygame.time.delay(500)
         
     def gain(self):
         font1 = pygame.font.SysFont('comicsans', 100)
@@ -163,7 +170,7 @@ class Weapon(object):
         
     def draw(self,win,rect):
         self.hitbox = (self.x , self.y, self.img.get_width(), self.img.get_height())  
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+        # pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
         if self.i > 71:
             self.i=0
         win.blit(self.weapons[self.i], (self.x,self.y))
@@ -430,7 +437,7 @@ class Summer:
                 obstacle_there = True
                 enemy.draw(self.screen,self.character.hitbox,self.character.isidle)
                 if enemy.collide(self.character.hitbox):
-                    self.character.hit()
+                    self.character.hit_enemy()
                     self.enemies.pop(self.enemies.index(enemy))
                     score -= 25
                     obstacle_there = False
