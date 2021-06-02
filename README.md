@@ -30,7 +30,7 @@
 
 * Main character loses 25 points if he is caught by the enemy and gains 25 points per enemy killed.
 
-##SetUp
+## SetUp
 
 * Install pygame module
 ```
