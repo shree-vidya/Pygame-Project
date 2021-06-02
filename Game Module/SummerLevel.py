@@ -484,18 +484,18 @@ class Summer:
                 if event.type == pygame.QUIT:
                     self.play = False
                 if event.type == pygame.USEREVENT and obstacle_there == False:
-                    r = random.randrange(0,25)
+                    r = random.randrange(0,15)
                     if r == 0:
                         self.obstacles.append(Bush(self.background.get_width(), 497+80, 48, 310))
                     elif r == 1:
                         self.obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
                     elif r == 2:
                         self.obstacles.append(Stones(self.background.get_width(), 497+80, 48, 310))
-                    elif r == 3:
+                    elif r == 3 or r == 12:
                         self.obstacles.append(Crate(self.background.get_width(), 497+25, 48, 310))
-                    elif r == 4:
+                    elif r == 4 or r == 6 or r == 7 or r == 8:
                         self.coins.append(Coins(self.background.get_width(), 497+65, 48, 310))
-                    elif r == 5:
+                    elif r == 5 or r == 9 or r == 10 or r == 11:
                         self.obstacles.append(Tree(self.background.get_width(), 497-175, 150, 310))
                     else:
                         self.enemies.append(Enemy(self.background.get_width(), 505, 64, 64))       
