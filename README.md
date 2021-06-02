@@ -8,7 +8,7 @@
 
 * Backward movement - **Left arrow key**
 
-* Jump - **Up arrow key**
+* Jump over obstacles - **Up arrow key**
 
 * Using Kunai knife - **Left mouse click**
 
